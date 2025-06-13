@@ -249,6 +249,15 @@ local function addDataToExportFrame()
 	end
 end
 
+local function scanCompleted(i)
+	addToLog("Stop trigger "..i)	
+	status = 0
+	scanBtn:SetText("Scan")
+	scanBtn:Enable()
+	addDataToExportFrame()
+	tempList = {}
+end
+
 function openLog()
 	if not logFrame then
 		logFrame = CreateFrame("Frame", "LogFrame", AuctionHouseFrame, "PortraitFrameTemplate")
@@ -277,11 +286,7 @@ end
 
 function getFastData()
 	if tableLength(tempList) >= tableLength(exportL.itemList) then
-		addToLog("Stop trigger 2")	
-		status = 0
-		scanBtn:SetText("Scan")
-		scanBtn:Enable()
-		addDataToExportFrame()
+		scanCompleted(1)
 		return
 	end
 	local keys = {}
@@ -300,13 +305,8 @@ function getFastData()
 				if tableLength(tempList) == tableLength(exportL.itemList) then
 					for _,vb in pairs(exportL.itemList) do
 						vb.sCount = 0
-					end					
-					addToLog("Stop trigger 3")		
-					status = 0
-					scanBtn:SetText("Scan")
-					scanBtn:Enable()
-					tempList = {}
-					addDataToExportFrame()
+					end
+					scanCompleted(2)
 					return
 				end	
 			end			
@@ -592,12 +592,7 @@ registerMyEvent("AUCTION_HOUSE_BROWSE_RESULTS_UPDATED", function(self, event, ..
 	if tableLength(tempList) ~= tableLength(exportL.itemList) then
 		getFastData()
 	else
-		addToLog("Stop trigger 1")	
-		status = 0
-		scanBtn:SetText("Scan")
-		scanBtn:Enable()
-		tempList = {}
-		addDataToExportFrame()	
+		scanCompleted(3)
 	end
 end)
 
