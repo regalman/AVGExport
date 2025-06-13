@@ -430,14 +430,6 @@ local function openSettings()
 	searchBox:SetSize(130, 30)
 	searchBox:SetPoint("TOPLEFT", settingsFrame, "TOPLEFT", 70, -17)
 	searchBox:SetAutoFocus(false)
-
-	-- local getAllAvgBtn = CreateFrame("Button", "GetAllAvgBtn", settingsFrame, "UIPanelButtonTemplate")
-    -- getAllAvgBtn:SetSize(100, 25)
-    -- getAllAvgBtn:SetText("Filter AVG")
-    -- getAllAvgBtn:SetPoint("TOPRIGHT", settingsFrame, "TOPRIGHT", -15, -18)
-    -- getAllAvgBtn:SetScript("OnClick", function()
-		-- showAllAvg()
-    -- end)
 		
 	fAvgFrame = CreateFrame("Frame", nil, settingsFrame)
 	fAvgFrame:SetSize(1, 1)
@@ -531,10 +523,23 @@ local function createGui()
 	scanBtn = btn
 end
 
-local f = CreateFrame("Frame")
-f:RegisterEvent("COMMODITY_SEARCH_RESULTS_UPDATED")
-f:SetScript("OnEvent", function(self, event, itemID,...)
-	if status == 0 then return end
+local eventFrame = CreateFrame("Frame")
+local eventHandlers = {}
+
+eventFrame:SetScript("OnEvent", function(self, event, ...)
+    local handler = eventHandlers[event]
+    if handler then
+        handler(self, event, ...)
+    end
+end)
+
+local function registerMyEvent(event, handler)
+    eventHandlers[event] = handler
+    eventFrame:RegisterEvent(event)
+end
+
+registerMyEvent("COMMODITY_SEARCH_RESULTS_UPDATED", function(self, event, itemID, ...)
+    if status == 0 then return end
 	local calcQ = 0
 	local avgPrice = 0
 	addToLog("Trigg before")
@@ -570,10 +575,7 @@ f:SetScript("OnEvent", function(self, event, itemID,...)
 	getAvgData()
 end)
 
-local i = 0
-local f2 = CreateFrame("Frame")
-f2:RegisterEvent("AUCTION_HOUSE_BROWSE_RESULTS_UPDATED")
-f2:SetScript("OnEvent", function(self, event, ...)
+registerMyEvent("AUCTION_HOUSE_BROWSE_RESULTS_UPDATED", function(self, event, ...)
 	if status ~= 2 then return end
     local results = C_AuctionHouse.GetBrowseResults()
     for i, result in pairs(results) do
@@ -599,27 +601,23 @@ f2:SetScript("OnEvent", function(self, event, ...)
 	end
 end)
 
-local frame = CreateFrame("Frame")
-frame:RegisterEvent("AUCTION_HOUSE_SHOW")
-frame:RegisterEvent("AUCTION_HOUSE_CLOSED")
-frame:SetScript("OnEvent", function(_, event, arg1)
-    if event == "AUCTION_HOUSE_SHOW" then
-		createGui()
-    end
-	if event == "AUCTION_HOUSE_CLOSED" then
-		status = 0
-		if exportFrame then
-			exportFrame:Hide()
-		end
-		scanBtn:SetText("Scan")
-    end
+registerMyEvent("AUCTION_HOUSE_SHOW", function(_, event, arg1)
+	createGui()
 end)
 
-local frame2 = CreateFrame("FRAME");
-frame2:RegisterEvent("ADDON_LOADED");
-frame2:RegisterEvent("PLAYER_LOGOUT");
-frame2:SetScript("OnEvent", function(_, event, arg1)
-	if event == "ADDON_LOADED" and arg1 == "AVGExport" then
+registerMyEvent("AUCTION_HOUSE_CLOSED", function(_, event, arg1)
+	status = 0
+	if exportFrame then
+		exportFrame:Hide()
+	end
+	if logFrame then
+		logFrame:Hide()
+	end
+	scanBtn:SetText("Scan")
+end)
+
+registerMyEvent("ADDON_LOADED", function(_, event, arg1)
+	if arg1 == "AVGExport" then
 		if exportSSprofile == nil then
 			addToLog("no profile list")			
 			profile = {}
@@ -627,10 +625,13 @@ frame2:SetScript("OnEvent", function(_, event, arg1)
 			addToLog("we got profile list")
 			profile = exportSSprofile
 		end
-	elseif event == "PLAYER_LOGOUT" then
-		exportSSprofile = profile
 	end
 end)
+
+registerMyEvent("PLAYER_LOGOUT", function(_, event, arg1)
+	exportSSprofile = profile
+end)
+
 
 
 
