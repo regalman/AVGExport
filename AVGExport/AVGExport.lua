@@ -539,7 +539,7 @@ local function registerMyEvent(event, handler)
 end
 
 registerMyEvent("COMMODITY_SEARCH_RESULTS_UPDATED", function(self, event, itemID, ...)
-    if status == 0 then return end
+    if status ~= 1 then return end
 	local calcQ = 0
 	local avgPrice = 0
 	addToLog("Trigg before")
