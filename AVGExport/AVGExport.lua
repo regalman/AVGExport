@@ -129,6 +129,7 @@ local function getAvgData()
 				local function dontStop(x)
 					addToLog(x.."  "..tableLength(tempList))
 					if x == tableLength(tempList) then
+						addToLog("Run getavgdataagain")
 						getAvgData()
 					end		
 				end			
@@ -281,6 +282,7 @@ function getFastData()
 		scanBtn:SetText("Scan")
 		scanBtn:Enable()
 		addDataToExportFrame()
+		return
 	end
 	local keys = {}
 	local count = 0
@@ -304,12 +306,25 @@ function getFastData()
 					scanBtn:SetText("Scan")
 					scanBtn:Enable()
 					tempList = {}
-					addDataToExportFrame()	
+					addDataToExportFrame()
+					return
 				end	
 			end			
 		end
 	end
 	C_AuctionHouse.SearchForItemKeys(keys,{})
+	
+	local tLL = tableLength(tempList)
+	C_Timer.After(2, function()			
+		local function dontStop(x)
+			addToLog(x.."  "..tableLength(tempList))
+			if x == tableLength(tempList) then
+				addToLog("Run getfastdataagain")
+				getFastData()
+			end		
+		end			
+		dontStop(tLL)
+	end)
 end
 
 local function openSettings()
@@ -518,10 +533,10 @@ end
 
 local f = CreateFrame("Frame")
 f:RegisterEvent("COMMODITY_SEARCH_RESULTS_UPDATED")
-f:SetScript("OnEvent", function(self, event, itemID,...)	
+f:SetScript("OnEvent", function(self, event, itemID,...)
+	if status == 0 then return end
 	local calcQ = 0
 	local avgPrice = 0
-	if status == 0 then return end
 	addToLog("Trigg before")
 	if not tableContains(tempList,itemID) then
 		addToLog("Triggered for: "..itemID)
