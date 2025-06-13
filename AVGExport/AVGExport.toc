@@ -1,0 +1,7 @@
+## Interface: 110105
+## Title: AVGExport
+## SavedVariables: exportSSprofile
+## Author: PW
+## Version: 0.2
+var.lua
+AVGExport.lua
