@@ -112,6 +112,7 @@ local function reset()
 end
 
 local function getAvgData()
+	if status == 0 then return end
 	if tableLength(searchList) == 0 and not skipAvgCheckbox:GetChecked() then
 		for i,v in pairs(exportL.itemList) do
 			if profile[tostring(v.itemId)] then
@@ -285,6 +286,7 @@ function openLog()
 end
 
 function getFastData()
+	if status == 0 then return end
 	if tableLength(tempList) >= tableLength(exportL.itemList) then
 		scanCompleted(1)
 		return
