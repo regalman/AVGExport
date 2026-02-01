@@ -1,4 +1,4 @@
 # AVGExport
 AH export addon for wow.
 
-![ahexport](https://github.com/user-attachments/assets/915cbad7-ae14-4d64-94cd-94a8ed647f07)
+<img width="575" height="536" alt="image" src="https://github.com/user-attachments/assets/20a5f6eb-9453-450d-bba7-4ddeb53ad341" />
