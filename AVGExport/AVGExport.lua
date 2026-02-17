@@ -149,7 +149,7 @@ function AVGE:ResetScan()
 	end
 end
 
-function AVGE:ScanCompleted(i)	
+function AVGE:ScanCompleted(i)
 	AVGE.status = 0
 	AVGE.scanBtn:SetText("Scan")
 	AVGE:AddDataToExportFrame()
@@ -159,7 +159,11 @@ function AVGE:AddDataToExportFrame()
 	AVGE.loadingText:SetText("Done")
 	AVGE.exportEditBox:SetText('\"Price\",\"Name\",\"Item Level\",\"Owned?\",\"Available\"'.."\n")
 	for _,i in pairs(AVGE.sL.scan) do
-		AVGE.exportEditBox:SetText(AVGE.exportEditBox:GetText()..math.floor(i.price + 0.5)..",\""..i.itemName.."\""..",70,\"\",0\n")
+		local price = "NA"
+		if type(i.price) == "number" then
+			price = math.floor(i.price + 0.5)
+		end
+		AVGE.exportEditBox:SetText(AVGE.exportEditBox:GetText()..price..",\""..i.itemName.."\""..",70,\"\",0\n")
 	end
 end
 
@@ -272,10 +276,11 @@ function AVGE:GetAuctionatorListItems(aucList)
 			end
 			---If no results after 5 tries then skip---
 			item.searchTries = item.searchTries and item.searchTries + 1 or 1
-			AVGE.currentSeachItem = item[1]
+			AVGE.currentSearchItem = item[1]
 			if item.searchTries >= 3 then 
 				table.insert(AVGE.sL.temp, item[1]) 
 				AVGE:GetAuctionatorListItems(AVGE.auctionatorListItems)
+				AVGE.exportEditBox:SetText(AVGE.exportEditBox:GetText().."No results found - "..item[1].."\n")
 				return
 			end
 			
@@ -336,8 +341,10 @@ function AVGE:FilterCollectedItems()
 		if not AVGE.data.savedItems[tostring(items.itemId)] and not AVGE.defItemList[tostring(items.itemId)] then
 			AVGE.data.savedItems[tostring(items.itemId)] = items
 			AVGE.defItemList[tostring(items.itemId)] = items
+			AVGE.exportEditBox:SetText(AVGE.exportEditBox:GetText().."Added - "..items.itemName.."\n")
 			--print(items.itemName.."  Added")
 		else
+			AVGE.exportEditBox:SetText(AVGE.exportEditBox:GetText().."Already exist in scan - "..items.itemName.."\n")
 			--print(items.itemName.."  Allready Added")
 		end
 	end
@@ -360,16 +367,23 @@ function AVGE:GetAvgData()
 	if AVGE.status ~= 1 then return end
 	for _, item in pairs(AVGE.sL.avg) do
 		if not AVGE:TableContains(AVGE.sL.temp, item.itemId) then
-			C_AuctionHouse.SendSearchQuery(C_AuctionHouse.MakeItemKey(item.itemId), {}, false)			
-			C_Timer.After(3, function()			
-				local function dontStop(x)
-					if x == AVGE:tableLength(AVGE.sL.temp) then
-						AVGE:GetAvgData()
-					end		
-				end			
-				dontStop(AVGE:tableLength(AVGE.sL.temp))
-			end)			
-			return
+			item.sCount = item.sCount + 1
+			if item.skip == nil and item.sCount < 6 then
+				C_AuctionHouse.SendSearchQuery(C_AuctionHouse.MakeItemKey(item.itemId), {}, false)			
+				C_Timer.After(3, function()			
+					local function dontStop(x)
+						if x == AVGE:tableLength(AVGE.sL.temp) then
+							AVGE:GetAvgData()
+						end		
+					end			
+					dontStop(AVGE:tableLength(AVGE.sL.temp))
+				end)			
+				return
+			else
+				item.price = "NA"
+				table.insert(AVGE.sL.temp,item.itemId)
+				AVGE:GetAvgData()
+			end
 		end
 	end
 	if AVGE:tableLength(AVGE.sL.avg) == AVGE:tableLength(AVGE.sL.temp) then
@@ -389,7 +403,7 @@ function AVGE:GetFastData()
 	
 	for _,item in pairs(AVGE.sL.scan) do
 		if not AVGE:TableContains(AVGE.sL.temp ,item.itemId) then
-			item.sCount = item.sCount + 1 
+			item.sCount = item.sCount + 1
 			if item.skip == nil and item.sCount < 6 then
 				local itemKey = C_AuctionHouse.MakeItemKey(item.itemId)
 				table.insert(keys, itemKey)
@@ -399,8 +413,9 @@ function AVGE:GetFastData()
 				end
 				count = count + 1				
 			else
+				item.price = "NA"
 				table.insert(AVGE.sL.temp,item.itemId)			
-				if AVGE:tableLength(AVGE.sL.temp) >= AVGE:tableLength(AVGE.sL.scan) then				
+				if AVGE:tableLength(AVGE.sL.temp) >= AVGE:tableLength(AVGE.sL.scan) then
 					AVGE:ScanCompleted(2)
 					return
 				end	
@@ -409,7 +424,7 @@ function AVGE:GetFastData()
 	end
 	C_AuctionHouse.SearchForItemKeys(keys,{})
 	
-	C_Timer.After(2, function()			
+	C_Timer.After(8, function()			
 		local function dontStop(x)
 			if x == AVGE:tableLength(AVGE.sL.temp) then
 				AVGE:GetFastData()
@@ -536,7 +551,7 @@ registerMyEvent("COMMODITY_SEARCH_RESULTS_UPDATED", function(self, event, itemID
 					calcQ = dataQ 
 				end
 			end
-			item.price = avgPrice/dataQ		
+			item.price = avgPrice/calcQ
 		end
 		if avgPrice ~= 0 then
 			table.insert(AVGE.sL.temp, itemID)
@@ -593,7 +608,7 @@ registerMyEvent("AUCTION_HOUSE_BROWSE_RESULTS_UPDATED", function(self, event, ..
 			end
 		end
 		if validResults then
-			table.insert(AVGE.sL.temp, AVGE.currentSeachItem)
+			table.insert(AVGE.sL.temp, AVGE.currentSearchItem)
 			AVGE.loading = math.floor((AVGE:tableLength(AVGE.sL.temp)/AVGE:tableLength(AVGE.auctionatorListItems)*100) + 0.5)
 			AVGE.loadingText:SetText("Adding items\n\n"..(AVGE.loading/2).."%")
 
