@@ -517,8 +517,7 @@ AVGE.defItemList = {
 					["223783"] = {exp = 11, itemId = 223783, group = 0,rank = 2, getAvg = false, sCount = 0, available = 0, itemName = "Enchant Weapon - Authority of the Depths Tier 2", price = 0, craftPrice = -1, dataQ = 100},
 					["223688"] = {exp = 11, itemId = 223688, group = 0,rank = 2, getAvg = false, sCount = 0, available = 0, itemName = "Enchant Chest - Oathsworn's Strength Tier 2", price = 0, craftPrice = -1, dataQ = 100},
 					["228405"] = {exp = 11, itemId = 228405, group = 0,rank = 2, getAvg = false, sCount = 0, available = 0, itemName = "Petal Powder Tier 2", price = 0, craftPrice = -1, dataQ = 100},
-					["228406"] = {exp = 11, itemId = 228406, group = 0,rank = 3, getAvg = false, sCount = 0, available = 0, itemName = "Petal Powder Tier 3", price = 0, craftPrice = -1, dataQ = 100},
-					["226202"] = {exp = 11, itemId = 226202, group = 0,rank = 0, getAvg = false, sCount = 0, available = 0, itemName = "Echoing Flux", price = 0.24, craftPrice = -1, dataQ = 1000, skip = true},					
+					["228406"] = {exp = 11, itemId = 228406, group = 0,rank = 3, getAvg = false, sCount = 0, available = 0, itemName = "Petal Powder Tier 3", price = 0, craftPrice = -1, dataQ = 100},					
 					["213777"] = {exp = 11, itemId = 213777, group = 0, getAvg = false, sCount = 0, available = 0, itemName = "Magnificent Jeweler's Setting", price = 0, dataQ = 100},
 					["221953"] = {exp = 11, itemId = 221953, group = 0,rank = 1, getAvg = false, sCount = 0, available = 0, itemName = "Convincingly Realistic Jumper Cables Tier 1", price = 0, dataQ = 100},
 					["221954"] = {exp = 11, itemId = 221954, group = 0,rank = 2, getAvg = false, sCount = 0, available = 0, itemName = "Convincingly Realistic Jumper Cables Tier 2", price = 0, dataQ = 100},
@@ -530,3 +529,4 @@ AVGE.defItemList = {
 					["220149"] = {exp = 11, itemId = 220149, group = 0, getAvg = false, sCount = 0, available = 0, itemName = "Sanguine Dogfish", price = 0, dataQ = 100},
 
 				}
+
