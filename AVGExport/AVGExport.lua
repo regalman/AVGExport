@@ -143,6 +143,7 @@ end
 function AVGE:ResetScan()
 	AVGE.sL = {scan = {}, avg = {}, temp = {}}
 	AVGE.loading = 0
+	AVGE.SC = 0
 	AVGE.exportEditBox:SetText("")
 	for _,item in pairs(AVGE.defItemList) do
 		item.sCount = 0
@@ -158,10 +159,14 @@ end
 function AVGE:AddDataToExportFrame()
 	AVGE.loadingText:SetText("Done")
 	AVGE.exportEditBox:SetText('\"Price\",\"Name\",\"Item Level\",\"Owned?\",\"Available\"'.."\n")
+	local notFound = 0
 	for _,i in pairs(AVGE.sL.scan) do
-		local price = "NA"
+		local price = "NA"	
 		if type(i.price) == "number" then
 			price = math.floor(i.price + 0.5)
+		elseif notFound == 0 then
+			notFound = 1
+			print("|cffffa500[AVGExport]|r No results for one or more items. Price have been set to \"NA\" for these items")
 		end
 		AVGE.exportEditBox:SetText(AVGE.exportEditBox:GetText()..price..",\""..i.itemName.."\""..",70,\"\",0\n")
 	end
@@ -365,23 +370,35 @@ end
 
 function AVGE:GetAvgData()
 	if AVGE.status ~= 1 then return end
+	if AVGE.SC then 
+		AVGE.SC = AVGE.SC + 1 
+	else 
+		AVGE.SC = 0 
+	end
 	for _, item in pairs(AVGE.sL.avg) do
 		if not AVGE:TableContains(AVGE.sL.temp, item.itemId) then
 			item.sCount = item.sCount + 1
-			if item.skip == nil and item.sCount < 6 then
-				C_AuctionHouse.SendSearchQuery(C_AuctionHouse.MakeItemKey(item.itemId), {}, false)			
+			if item.skip == nil and item.sCount < 5 then
+				C_AuctionHouse.SendSearchQuery(C_AuctionHouse.MakeItemKey(item.itemId), {}, false)	
+				local SC = AVGE.SC
+				local ttpL = AVGE:tableLength(AVGE.sL.temp)
 				C_Timer.After(3, function()			
-					local function dontStop(x)
-						if x == AVGE:tableLength(AVGE.sL.temp) then
+					local function dontStop(x,y)
+						if x == AVGE:tableLength(AVGE.sL.temp) and y == AVGE.SC then
 							AVGE:GetAvgData()
 						end		
-					end			
-					dontStop(AVGE:tableLength(AVGE.sL.temp))
+					end	
+					dontStop(ttpL,SC )
 				end)			
 				return
 			else
 				item.price = "NA"
 				table.insert(AVGE.sL.temp,item.itemId)
+				local tlL = AVGE:tableLength(AVGE.sL.temp)
+				local ilL = AVGE:tableLength(AVGE.sL.scan)
+				AVGE.scanBtn:SetText(tlL.."/"..ilL)
+				AVGE.loading = math.floor((tlL/ilL*100) + 0.5)
+				AVGE.loadingText:SetText(AVGE.loading.."%")
 				AVGE:GetAvgData()
 			end
 		end
@@ -414,7 +431,12 @@ function AVGE:GetFastData()
 				count = count + 1				
 			else
 				item.price = "NA"
-				table.insert(AVGE.sL.temp,item.itemId)			
+				table.insert(AVGE.sL.temp,item.itemId)
+				local tlL = AVGE:tableLength(AVGE.sL.temp)
+				local ilL = AVGE:tableLength(AVGE.sL.scan)
+				AVGE.scanBtn:SetText(tlL.."/"..ilL)
+				AVGE.loading = math.floor((tlL/ilL*100) + 0.5)
+				AVGE.loadingText:SetText(AVGE.loading.."%")	
 				if AVGE:tableLength(AVGE.sL.temp) >= AVGE:tableLength(AVGE.sL.scan) then
 					AVGE:ScanCompleted(2)
 					return
@@ -479,7 +501,12 @@ function AVGE:updateList()
 			end
             row[2].itemData = results[i]
 			row[4].itemData = results[i]
-			row[2]:SetChecked(AVGE.data[itemIdS] and AVGE.data[itemIdS][1] or results[i].getAvg)
+			if AVGE.data[itemIdS] then
+				row[2]:SetChecked(AVGE.data[itemIdS][1])
+			else
+				row[2]:SetChecked(results[i].getAvg)
+			end
+			--row[2]:SetChecked(AVGE.data[itemIdS] and AVGE.data[itemIdS][1] or results[i].getAvg)
 			row[4]:SetText(AVGE.data[itemIdS] and AVGE.data[itemIdS][2] or results[i].dataQ)
             row[1]:Show()
         else
@@ -497,8 +524,8 @@ function AVGE:SearchItems(query)
 		if not (AVGE.tWWCheckbox:GetChecked() and item.exp == 11) and not (AVGE.mNCheckbox:GetChecked() and item.exp == 12) and not AVGE.allCheckbox:GetChecked() then
 				--skip--
 		elseif AVGE.fAvgCheckbox:GetChecked() then
-			if AVGE.data and AVGE.data[tostring(item.itemId)] and AVGE.data[tostring(item.itemId)][1] then
-				if string.find(string.lower(item.itemName), query) then
+			if AVGE.data and AVGE.data[tostring(item.itemId)] then
+				if AVGE.data[tostring(item.itemId)][1] and string.find(string.lower(item.itemName), query) then
 					table.insert(searchResults, item)
 				end
 			else
