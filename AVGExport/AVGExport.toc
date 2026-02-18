@@ -2,7 +2,8 @@
 ## Title: AVGExport
 ## SavedVariables: AVGEDB
 ## Author: PW
-## Version: 0.3
+## Version: 0.3.3
 var.lua
 GUI.lua
+
 AVGExport.lua
