@@ -399,7 +399,7 @@ function AVGE:GetAvgData()
 	for _, item in pairs(AVGE.sL.avg) do
 		if not AVGE:TableContains(AVGE.sL.temp, item.itemId) then
 			item.sCount = item.sCount + 1
-			if item.skip == nil and item.sCount < 5 then
+			if item.skip == nil and item.sCount < 8 then
 				C_AuctionHouse.SendSearchQuery(C_AuctionHouse.MakeItemKey(item.itemId), {}, false)	
 				local SC = AVGE.SC
 				local ttpL = AVGE:tableLength(AVGE.sL.temp)
@@ -608,9 +608,9 @@ registerMyEvent("COMMODITY_SEARCH_RESULTS_UPDATED", function(self, event, itemID
 			AVGE.scanBtn:SetText(tlL.."/"..ilL)
 			AVGE.loading = math.floor((tlL/ilL*100) + 0.5)
 			AVGE.loadingText:SetText(AVGE.loading.."%")
-		end
-		AVGE:GetAvgData()
+		end	
 	end
+	AVGE:GetAvgData()
 end)
 
 registerMyEvent("AUCTION_HOUSE_BROWSE_RESULTS_UPDATED", function(self, event, ...)
