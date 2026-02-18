@@ -19,6 +19,26 @@ function AVGE:TableContains(tbl, x)
     return found
 end
 
+function AVGE:TableContainsNest(tbl, value, visited)
+    if type(tbl) ~= "table" then return false end
+    
+    visited = visited or {} 
+    if visited[tbl] then return false end
+    visited[tbl] = true
+
+    for _, v in pairs(tbl) do
+        if v == value then
+            return true
+        elseif type(v) == "table" then
+            if AVGE:TableContainsNest(v, value, visited) then
+                return true
+            end
+        end
+    end
+    return false
+end
+
+
 function AVGE:TableCountContains(tbl, x)
 	local count = 0
     local found = false
@@ -563,7 +583,7 @@ registerMyEvent("COMMODITY_SEARCH_RESULTS_UPDATED", function(self, event, itemID
     if AVGE.status ~= 1 then return end
 	local calcQ = 0
 	local avgPrice = 0
-	if not AVGE:TableContains(AVGE.sL.temp,itemID) then
+	if not AVGE:TableContains(AVGE.sL.temp,itemID) and AVGE:TableContainsNest(AVGE.sL.scan, itemID) then
 		local item = AVGE.sL.avg[tostring(itemID)]
 		if not item.skip then
 			local dataQ = (AVGE.data[tostring(itemID)] and AVGE.data[tostring(itemID)][2]) or item.dataQ
@@ -648,7 +668,7 @@ registerMyEvent("AUCTION_HOUSE_BROWSE_RESULTS_UPDATED", function(self, event, ..
 	if AVGE.status ~= 2 then return end
     local results = C_AuctionHouse.GetBrowseResults()
     for i, result in pairs(results) do
-		if result.minPrice ~= 0 then
+		if result.minPrice ~= 0 and not AVGE:TableContains(AVGE.sL.temp, result.itemKey.itemID) and AVGE:TableContainsNest(AVGE.sL.scan, result.itemKey.itemID) then
 			table.insert(AVGE.sL.temp,result.itemKey.itemID)
 			AVGE.sL.scan[tostring(result.itemKey.itemID)].price = result.minPrice
 			local tlL = AVGE:tableLength(AVGE.sL.temp)
