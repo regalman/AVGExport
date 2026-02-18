@@ -392,6 +392,7 @@ function AVGE:GetAvgData()
 	if AVGE.status ~= 1 then return end
 	if AVGE.SC then 
 		AVGE.SC = AVGE.SC + 1 
+		--if AVGE.SC > 1 then return end
 	else 
 		AVGE.SC = 0 
 	end
@@ -608,9 +609,8 @@ registerMyEvent("COMMODITY_SEARCH_RESULTS_UPDATED", function(self, event, itemID
 			AVGE.loading = math.floor((tlL/ilL*100) + 0.5)
 			AVGE.loadingText:SetText(AVGE.loading.."%")
 		end
-		
+		AVGE:GetAvgData()
 	end
-	AVGE:GetAvgData()
 end)
 
 registerMyEvent("AUCTION_HOUSE_BROWSE_RESULTS_UPDATED", function(self, event, ...)
