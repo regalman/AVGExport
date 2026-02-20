@@ -80,8 +80,10 @@ function AVGE:UI()
 	self.exportFrame:Hide()
 	-----settingframe-----
 	self.settingsFrame = AVGE:CreateFrame("SettingsFrame", AVGE.mainFrame, "TOPLEFT", "BOTTOMLEFT", 0, 0, 425, 380, "BackdropTemplate", "hide")
-	self.settingsScrollFrame = AVGE:CreateScrollFrame(self.settingsFrame, "TOPLEFT","BOTTOMRIGHT", 15, -80, -35, 40, "UIPanelScrollFrameTemplate", "frame") 
+	self.settingsScrollFrame = AVGE:CreateScrollFrame(self.settingsFrame, "TOPLEFT","BOTTOMRIGHT", 15, -100, -35, 40, "UIPanelScrollFrameTemplate", "frame") 
+	local headerText = AVGE:CreateFont(self.settingsFrame, "Avg  Qty        Item", "TOPLEFT", "TOPLEFT", 16, -80)
  	local resetSettingsBtn = AVGE:CreateBtn("ResetSettingsBtn", self.settingsFrame, "Reset", "BOTTOMRIGHT", "BOTTOMRIGHT", -12, 13, 60, 25)
+	local helpBtn = AVGE:CreateBtn("HelpBtn", self.settingsFrame, "Help", "BOTTOMRIGHT", "BOTTOMRIGHT", -82, 13, 60, 25)
 	local searchBoxText = AVGE:CreateFont(self.settingsFrame, "Search:", "TOPLEFT", "TOPLEFT", 15, -25)
 	self.fAvgCheckbox = AVGE:CreateCheckbox("fAVGCheckbox", self.settingsFrame, "Filter AVG:", "TOPRIGHT", "TOPRIGHT", -20, -18, 125,40)					
 	self.tWWCheckbox = AVGE:CreateCheckbox("TWWCheckbox", self.settingsFrame,"War Within:","BOTTOMLEFT", "BOTTOMLEFT", 10, 0,125,40)	
@@ -114,7 +116,7 @@ function AVGE:UI()
     self.scanBtn:SetScript("OnClick", function()
 		AVGE:Scan()
     end)
-	
+
     --logBtn:SetScript("OnClick", function()
 	--	openLog()
     --end)
@@ -126,6 +128,20 @@ function AVGE:UI()
 	resetSettingsBtn:SetScript("OnClick", function()
 		AVGE:ResetPopup()
 		StaticPopup_Show("MY_CONFIRM_POPUP")
+    end)
+
+	helpBtn:SetScript("OnClick", function()
+		local helpFrame = AVGE:CreateFrame("HelpFrame", UIParent, "CENTER", nil,0, 0, 460, 749, "PortraitFrameTemplate")	
+		helpFrame:SetMovable(true)
+		helpFrame:EnableMouse(true)
+		helpFrame:RegisterForDrag("LeftButton")
+		helpFrame:SetScript("OnDragStart", helpFrame.StartMoving)
+		helpFrame:SetScript("OnDragStop", helpFrame.StopMovingOrSizing)
+		local texture = helpFrame:CreateTexture(nil, "ARTWORK")
+		texture:SetPoint("TOPLEFT", 4, -4)
+		texture:SetPoint("BOTTOMRIGHT", -4, 4)
+		texture:SetTexture("Interface\\AddOns\\AVGExport\\help.png")
+		
     end)
 	
 	self.tWWCheckbox:SetScript("OnClick", function(self)
@@ -481,7 +497,7 @@ function AVGE:SetupItemTable()
 	if not AVGE.resultRows then AVGE.resultRows = {} end
 	for i = AVGE:tableLength(AVGE.resultRows)+1, AVGE:tableLength(AVGE.defItemList) do
 		local myRow = {}
-		myRow[1] = AVGE:CreateFrame("RowFrame", AVGE.settingsScrollFrame, "TOPLEFT", "TOPLEFT", -4, -9 - (i - 1) * 26, 300, 24)
+		myRow[1] = AVGE:CreateFrame("RowFrame", AVGE.settingsScrollFrame, "TOPLEFT", "TOPLEFT", -4, -11 - (i - 1) * 26, 300, 24)
 		myRow[2] = AVGE:CreateCheckbox("RowAvgCheckbox", myRow[1], "", "BOTTOMLEFT", "BOTTOMLEFT", -80, 0,125,40)			
 		myRow[3] = AVGE:CreateFont(myRow[1], "Test test  test", "LEFT", "LEFT", 95, 15)
 		myRow[4] = AVGE:CreateEditBox(myRow[1], "TOPLEFT", "TOPLEFT", 40, 17, 45, 30, "InputBoxTemplate")
@@ -719,4 +735,3 @@ end)
 registerMyEvent("PLAYER_LOGOUT", function(_, event, arg1)
 	AVGEDB = AVGE.data
 end)
-
