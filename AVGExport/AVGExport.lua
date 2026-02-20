@@ -79,7 +79,7 @@ function AVGE:UI()
 	self.loadingText = AVGE:CreateFont(exportScrollFrame, "0%", "CENTER", nil, nil, nil, "font")
 	self.exportFrame:Hide()
 	-----settingframe-----
-	self.settingsFrame = AVGE:CreateFrame("SettingsFrame", AVGE.mainFrame, "TOPLEFT", "BOTTOMLEFT", 0, 0, 350, 380, "BackdropTemplate", "hide")
+	self.settingsFrame = AVGE:CreateFrame("SettingsFrame", AVGE.mainFrame, "TOPLEFT", "BOTTOMLEFT", 0, 0, 425, 380, "BackdropTemplate", "hide")
 	self.settingsScrollFrame = AVGE:CreateScrollFrame(self.settingsFrame, "TOPLEFT","BOTTOMRIGHT", 15, -80, -35, 40, "UIPanelScrollFrameTemplate", "frame") 
  	local resetSettingsBtn = AVGE:CreateBtn("ResetSettingsBtn", self.settingsFrame, "Reset", "BOTTOMRIGHT", "BOTTOMRIGHT", -12, 13, 60, 25)
 	local searchBoxText = AVGE:CreateFont(self.settingsFrame, "Search:", "TOPLEFT", "TOPLEFT", 15, -25)
@@ -719,3 +719,4 @@ end)
 registerMyEvent("PLAYER_LOGOUT", function(_, event, arg1)
 	AVGEDB = AVGE.data
 end)
+
