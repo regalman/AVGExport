@@ -239,20 +239,25 @@ end
 function AVGE:SetupDropdown()
 	UIDropDownMenu_SetWidth(AVGE.shoppingListsDD, 190)
 	UIDropDownMenu_SetText(AVGE.shoppingListsDD, "Add items from auctionator list") 
-	UIDropDownMenu_Initialize(AVGE.shoppingListsDD, function(self, level)
-		AVGE.shoppingListsDD.selectedValue = 0
-		for i = 1, Auctionator.Shopping.ListManager:GetCount() do
-			local list = Auctionator.Shopping.ListManager:GetByIndex(i):GetName()
-			local info = UIDropDownMenu_CreateInfo()
-			info.text =  list
-			--info.value = list
-			info.func = function()
-				UIDropDownMenu_SetText(AVGE.shoppingListsDD, info.text)
-				AVGE.shoppingListsDD.selectedValue = list
-			end
-			UIDropDownMenu_AddButton(info)
-		end	
-	end)
+	if not C_AddOns.IsAddOnLoaded("Auctionator") then 			
+			UIDropDownMenu_Initialize(AVGE.shoppingListsDD, function(self, level)
+		end)
+	else
+		UIDropDownMenu_Initialize(AVGE.shoppingListsDD, function(self, level)
+			AVGE.shoppingListsDD.selectedValue = 0
+			for i = 1, Auctionator.Shopping.ListManager:GetCount() do
+				local list = Auctionator.Shopping.ListManager:GetByIndex(i):GetName()
+				local info = UIDropDownMenu_CreateInfo()
+				info.text =  list
+				--info.value = list
+				info.func = function()
+					UIDropDownMenu_SetText(AVGE.shoppingListsDD, info.text)
+					AVGE.shoppingListsDD.selectedValue = list
+				end
+				UIDropDownMenu_AddButton(info)
+			end	
+		end)
+	end
 end
 
 function AVGE:Reset()
@@ -263,7 +268,7 @@ end
 
 function AVGE:AddItems()
 	local selectedList = AVGE.shoppingListsDD.selectedValue
-	if selectedList ==  0 then return end
+	if selectedList ==  0 or selectedList == nil then return end
 	--print(selectedList)
 	AVGE.auctionatorListItems = {}
 	AVGE:ResetScan()
